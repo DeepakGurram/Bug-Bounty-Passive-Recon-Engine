@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pro Bug Bounty Google Dork Engine</title>
+
+<style>
+  body {
+    margin: 0;
+    font-family: system-ui, Arial, sans-serif;
+    background: #0f172a;
+    color: #e5e7eb;
+  }
+  .container {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+  }
+  h2 {
+    margin-top: 30px;
+  }
+  input {
+    width: 100%;
+    padding: 12px;
+    background: #020617;
+    border: 1px solid #1e293b;
+    color: #e5e7eb;
+    border-radius: 8px;
+  }
+  .cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px,1fr));
+    gap: 10px;
+  }
+  label {
+    border: 1px solid #1e293b;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: block;
+  }
+  label:hover {
+    border-color: #2563eb;
+  }
+  button {
+    margin-top: 30px;
+    width: 100%;
+    padding: 15px;
+    font-size: 16px;
+    background: #2563eb;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  textarea {
+    width: 100%;
+    margin-top: 15px;
+    height: 220px;
+    background: #020617;
+    border: 1px solid #1e293b;
+    color: #22c55e;
+    border-radius: 8px;
+    padding: 10px;
+    font-family: monospace;
+  }
+  .stats {
+    margin-top: 10px;
+    color: #22c55e;
+  }
+  footer {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 12px;
+    color: #64748b;
+  }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>🕷️ Pro Bug Bounty Google Dork Engine</h1>
+
+<label>🎯 In-Scope Domain</label>
+<input id="scope" placeholder="example.com">
+
+<!-- ================= BUG TYPE SECTIONS ================= -->
+
+<h2>🔑 Secrets & Credentials</h2>
+<div class="cards">
+  <label><input type="checkbox" class="secrets"> filetype:env</label>
+  <label><input type="checkbox" class="secrets"> filetype:json</label>
+  <label><input type="checkbox" class="secrets"> filetype:yaml</label>
+  <label><input type="checkbox" class="secrets"> "Authorization: Bearer"</label>
+  <label><input type="checkbox" class="secrets"> "AWS_SECRET_ACCESS_KEY"</label>
+</div>
+
+<h2>🔐 Auth & Admin</h2>
+<div class="cards">
+  <label><input type="checkbox" class="auth"> inurl:login</label>
+  <label><input type="checkbox" class="auth"> inurl:signin</label>
+  <label><input type="checkbox" class="auth"> inurl:admin</label>
+  <label><input type="checkbox" class="auth"> intitle:"Admin Login"</label>
+</div>
+
+<h2>🔌 API & Backend</h2>
+<div class="cards">
+  <label><input type="checkbox" class="api"> inurl:/api/</label>
+  <label><input type="checkbox" class="api"> intitle:swagger</label>
+  <label><input type="checkbox" class="api"> intitle:openapi</label>
+  <label><input type="checkbox" class="api"> inurl:api-docs</label>
+</div>
+
+<h2>🧪 Parameters (SQLi / IDOR / XSS)</h2>
+<div class="cards">
+  <label><input type="checkbox" class="params"> inurl:?id=</label>
+  <label><input type="checkbox" class="params"> inurl:?user=</label>
+  <label><input type="checkbox" class="params"> inurl:?file=</label>
+  <label><input type="checkbox" class="params"> inurl:?redirect=</label>
+</div>
+
+<h2>📂 Open Directories & Backups</h2>
+<div class="cards">
+  <label><input type="checkbox" class="files"> intitle:"index of /"</label>
+  <label><input type="checkbox" class="files"> filetype:bak</label>
+  <label><input type="checkbox" class="files"> filetype:backup</label>
+  <label><input type="checkbox" class="files"> filetype:old</label>
+</div>
+
+<h2>🐞 Errors & Debug</h2>
+<div class="cards">
+  <label><input type="checkbox" class="errors"> "SQL syntax"</label>
+  <label><input type="checkbox" class="errors"> "stack trace"</label>
+  <label><input type="checkbox" class="errors"> "Unhandled exception"</label>
+  <label><input type="checkbox" class="errors"> "Fatal error"</label>
+</div>
+
+<h2>📢 Information Disclosure</h2>
+<div class="cards">
+  <label><input type="checkbox" class="info"> filetype:log</label>
+  <label><input type="checkbox" class="info"> filetype:txt</label>
+  <label><input type="checkbox" class="info"> filetype:conf</label>
+  <label><input type="checkbox" class="info"> filetype:ini</label>
+  <label><input type="checkbox" class="info"> inurl:debug</label>
+  <label><input type="checkbox" class="info"> inurl:backup</label>
+  <label><input type="checkbox" class="info"> inurl:.git</label>
+</div>
+
+<h2>📁 Sensitive File Search</h2>
+<div class="cards">
+  <label><input type="checkbox" class="sensitive"> filetype:sql</label>
+  <label><input type="checkbox" class="sensitive"> filetype:zip</label>
+  <label><input type="checkbox" class="sensitive"> filetype:tar</label>
+  <label><input type="checkbox" class="sensitive"> filetype:gz</label>
+  <label><input type="checkbox" class="sensitive"> filetype:xls</label>
+  <label><input type="checkbox" class="sensitive"> filetype:xlsx</label>
+  <label><input type="checkbox" class="sensitive"> filetype:csv</label>
+  <label><input type="checkbox" class="sensitive"> filetype:pdf</label>
+  <label><input type="checkbox" class="sensitive"> filetype:doc</label>
+  <label><input type="checkbox" class="sensitive"> filetype:docx</label>
+</div>
+
+<button onclick="runSearch()">Search (Pro Mode) 🚀</button>
+
+<h2>📄 Generated Queries</h2>
+<textarea id="output" readonly></textarea>
+<div class="stats" id="stats"></div>
+
+<footer>
+Educational use only • Test only on authorized scopes
+</footer>
+
+</div>
+
+<script>
+function buildQuery(scope, cls) {
+  const items = document.querySelectorAll(`.${cls}:checked`);
+  if (items.length === 0) return null;
+  const dorks = Array.from(items).map(i => i.parentElement.innerText.trim());
+  return `site:${scope} (${dorks.join(" OR ")})`;
+}
+
+function runSearch() {
+  const scope = document.getElementById("scope").value.trim();
+  if (!scope) {
+    alert("Enter in-scope domain");
+    return;
+  }
+
+  const output = document.getElementById("output");
+  const stats = document.getElementById("stats");
+  output.value = "";
+  let count = 0;
+
+  const groups = [
+    "secrets","auth","api","params",
+    "files","errors","info","sensitive"
+  ];
+
+  groups.forEach(group => {
+    const q = buildQuery(scope, group);
+    if (q) {
+      output.value += q + "\n\n";
+      window.open(
+        "https://www.google.com/search?q=" + encodeURIComponent(q),
+        "_blank"
+      );
+      count++;
+    }
+  });
+
+  stats.innerText = `Bug-Type Searches Executed: ${count}`;
+}
+</script>
+
+</body>
+</html>
